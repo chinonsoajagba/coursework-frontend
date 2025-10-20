@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="App">
+    <h1>My Todolist</h1>
+    <input type="text" id="newTask"><Button id="addButton">add</Button>
+    <ul id="tasklist">
+    </ul>
+</div>
+
+   <script>
+    let tasks = ["Task 1","Task 2", "Task 3"];
+   
+    let addButton = document.getElementById("addButton");
+    let tasklist = document.getElementById("tasklist");
+    addButton.onclick = function(){
+        let taskField = document.getElementById("newTask");
+        let taskFieldContent = taskField.value;
+
+        tasks.push(taskFieldContent);
+
+        addItem(taskFieldContent);
+
+        taskField.value = "";
+    }
+
+    for (let index = 0; index < tasks.length; index++) {
+        const element = tasks[index];
+
+        addItem(element);
+    }
+
+    function addItem(myText) {
+        let taskItem = document.createElement("li");
+        taskItem.innerText = myText;
+        tasklist.appendChild(taskItem);
+    }
+   </script>
+</body>
+</html>
