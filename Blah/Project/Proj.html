@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"> 
   <title>Project</title>
   <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+  <script src="https://unpkg.com/vue-router@3.6.5/dist/vue-router.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,6 +22,7 @@
       text-align: center;
       font-size: 1.8rem;
       font-weight: bold;
+      position: relative;
     }
 
     main {
@@ -83,6 +85,49 @@
     button:hover {
       background-color: #2980b9;
     }
+    
+    .search-container {
+      position: relative;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 0 30px;
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 12px 20px 12px 45px;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+  .search-bar:focus {
+      border-color: #3498db;
+    }
+
+  .search-icon {
+      position: absolute;
+      left: 45px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f8c8d;
+    }
+    .checkout-btn {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #27ae60;
+      padding: 10px 20px;
+      border-radius: 25px;
+    }
+
+    .cart-info {
+      display: flex;
+      gap: 10px;
+    }
   </style>
 </head>
 
@@ -90,14 +135,27 @@
   <div id="app">
     <header>
       {{ sitename }}
-    </header>
-    <button v-on:click="showCheckout">
-        {{itemsInTheCart}}
-        <span class="fa-solid fa-cart-shopping"></span>
-        checkout
-      </button>
+     <button class="checkout-btn" v-on:click="showCheckout">
+    <div class="cart-info">
+      <span>{{ cart.length }}</span>
+      <span>${{ cartTotal.toFixed(2) }}</span>
+    </div>
+    <span class="fa-solid fa-cart-shopping"></span>
+    Checkout
+  </button>
+</header>
+
+  <div class="search-container">
+    <input 
+      type="text" 
+      v-model="searchQuery" 
+      placeholder="Search books by title..." 
+      class="search-bar">
+  <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    </div>
+
     <main>
-      <figure v-for="product in products" :key="product.id">
+      <figure v-for="product in filteredProducts" :key="product.id">
         <img :src="product.image" :alt="'This is item ' + product.title">
         <h2 v-text="product.title"></h2>
         <p v-html="product.description"></p>
@@ -116,6 +174,7 @@
       el: "#app",
       data: {
         sitename: "Bookstore",
+        searchQuery:"",
         products: [
           { 
             id: 1001,
@@ -192,33 +251,39 @@
         ],
         cart: []
       },
-      methods: {
-        addItemToTheCart: function(product){
-          // Check if we can add the item
-          if (this.canAddToTheCart(product)) {
-            this.cart.push(product.id);
-            product.availableInventory--;
-          }
-        }
-      },
-      computed: {
-        itemsInTheCart: function() {
-            return this.cart.length || "";
-        }
-      },
-      methods: {
+       methods: {
         addItemToTheCart: function(product){        
-          if (this.canAddToTheCart(product)) {
-            this.cart.push(product.id);
-            product.availableInventory--;
-          }
-        },
+    if (this.canAddToTheCart(product)) {
+      this.cart.push({
+        id: product.id,
+        price: product.price
+      });
+      product.availableInventory--;
+    }
+  },
         canAddToTheCart: function(product) {
           return product.availableInventory > 0;        
         },
         showCheckout: function(){
           window.location.href = "checkout.html";
         }
+      },
+      computed: {
+        itemsInTheCart: function() {
+            return this.cart.length || "";
+        },
+        filteredProducts: function() {
+      if (!this.searchQuery) {
+        return this.products;
+      }
+      const query = this.searchQuery.toLowerCase();
+      return this.products.filter(product => 
+        product.title.toLowerCase().includes(query)
+      );
+    },
+    cartTotal: function() {
+      return this.cart.reduce((total, item) => total + item.price, 0);
+    }
       }
     })
   </script>
