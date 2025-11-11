@@ -91,7 +91,7 @@
     <header>
       {{ sitename }}
     </header>
-    <button>
+    <button v-on:click="showCheckout">
         {{itemsInTheCart}}
         <span class="fa-solid fa-cart-shopping"></span>
         checkout
@@ -214,7 +214,10 @@
           }
         },
         canAddToTheCart: function(product) {
-          return product.availableInventory > 0;
+          return product.availableInventory > 0;        
+        },
+        showCheckout: function(){
+          window.location.href = "checkout.html";
         }
       }
     })
