@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"> 
+  <title>Checkout - Bookstore</title>
+  <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+    }
+
+    .checkout-form, .order-summary {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 25px;
+    }
+
+    .order-summary {
+      align-self: start;
+    }
+
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      color: #2c3e50;
+      margin: 15px 0 10px 0;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-details {
+      flex-grow: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .item-price {
+      color: #7f8c8d;
+    }
+
+    .summary-totals {
+      margin-top: 20px;
+      border-top: 2px solid #e0e0e0;
+      padding-top: 15px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .grand-total {
+      font-size: 1.2rem;
+      color: #2c3e50;
+      border-top: 2px solid #3498db;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background-color: #219a52;
+    }
+
+    .submit-btn:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .empty-cart {
+      text-align: center;
+      color: #7f8c8d;
+      padding: 40px;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="checkout-app">
+    <header>
+      <a href="Proj.html" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i>
+    Back to Shop
+    </a>
+      Checkout
+    </header>
+
+    <div class="container">
+      <div class="checkout-form">
+        <h2>Shipping Information</h2>
+        
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" v-model="checkoutData.email" required>
+          <div class="error-message" v-if="errors.email">{{ errors.email }}</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" v-model="checkoutData.firstName" required>
+            <div class="error-message" v-if="errors.firstName">{{ errors.firstName }}</div>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" v-model="checkoutData.lastName" required>
+            <div class="error-message" v-if="errors.lastName">{{ errors.lastName }}</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Street Address *</label>
+          <input type="text" id="address" v-model="checkoutData.address" required>
+          <div class="error-message" v-if="errors.address">{{ errors.address }}</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City *</label>
+            <input type="text" id="city" v-model="checkoutData.city" required>
+            <div class="error-message" v-if="errors.city">{{ errors.city }}</div>
+          </div>
+          <div class="form-group">
+            <label for="zipCode">ZIP Code *</label>
+            <input type="text" id="zipCode" v-model="checkoutData.zipCode" required>
+            <div class="error-message" v-if="errors.zipCode">{{ errors.zipCode }}</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="country">Country *</label>
+          <select id="country" v-model="checkoutData.country" required>
+            <option value="">Select Country</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="UK">United Kingdom</option>
+            <option value="AU">Australia</option>
+          </select>
+          <div class="error-message" v-if="errors.country">{{ errors.country }}</div>
+        </div>
+
+        <h2>Payment Details</h2>
+
+        <div class="form-group">
+          <label for="cardNumber">Card Number *</label>
+          <input type="text" id="cardNumber" v-model="checkoutData.cardNumber" placeholder="1234 5678 9012 3456" required>
+          <div class="error-message" v-if="errors.cardNumber">{{ errors.cardNumber }}</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expiryDate">Expiry Date *</label>
+            <input type="text" id="expiryDate" v-model="checkoutData.expiryDate" placeholder="MM/YY" required>
+            <div class="error-message" v-if="errors.expiryDate">{{ errors.expiryDate }}</div>
+          </div>
+          <div class="form-group">
+            <label for="cvv">CVV *</label>
+            <input type="text" id="cvv" v-model="checkoutData.cvv" placeholder="123" required>
+            <div class="error-message" v-if="errors.cvv">{{ errors.cvv }}</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cardName">Name on Card *</label>
+          <input type="text" id="cardName" v-model="checkoutData.cardName" required>
+          <div class="error-message" v-if="errors.cardName">{{ errors.cardName }}</div>
+        </div>
+
+        <button class="submit-btn" @click="processOrder" :disabled="isProcessing || cartItems.length === 0">
+          <span v-if="isProcessing">
+            <i class="fa-solid fa-spinner fa-spin"></i> Processing...
+          </span>
+          <span v-else>
+            Complete Order - ${{ grandTotal.toFixed(2) }}
+          </span>
+        </button>
+      </div>
+
+      <div class="order-summary">
+        <h2>Order Summary</h2>
+        
+        <div v-if="cartItems.length === 0" class="empty-cart">
+          <i class="fa-solid fa-cart-shopping" style="font-size: 3rem; margin-bottom: 15px;"></i>
+          <p>Your cart is empty</p>
+          <p>Add some books from the shop first!</p>
+        </div>
+
+        <div v-else>
+          <div v-for="item in cartItems" :key="item.id" class="cart-item">
+            <div class="item-details">
+              <div class="item-name">{{ getProductTitle(item.id) }}</div>
+              <div class="item-price">${{ item.price.toFixed(2) }}</div>
+            </div>
+          </div>
+
+          <div class="summary-totals">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${{ subtotal.toFixed(2) }}</span>
+            </div>
+            <div class="total-row">
+              <span>Shipping:</span>
+              <span>${{ shippingCost.toFixed(2) }}</span>
+            </div>
+            <div class="total-row">
+              <span>Tax:</span>
+              <span>${{ taxAmount.toFixed(2) }}</span>
+            </div>
+            <div class="total-row grand-total">
+              <span>Total:</span>
+              <span>${{ grandTotal.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  new Vue({
+    el: '#checkout-app',
+    data: {
+      checkoutData: {
+        email: '',
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        zipCode: '',
+        country: '',
+        cardNumber: '',
+        expiryDate: '',
+        cvv: '',
+        cardName: ''
+      },
+      errors: {},
+      isProcessing: false,
+      cartItems: [],
+      products: [
+        { 
+          id: 1001,
+          title: "Mathematics",
+          price: 20.00
+        },
+        { 
+          id: 1002,
+          title: "English",
+          price: 10.00
+        },
+        {
+          id: 1003,
+          title: "Computer Science",
+          price: 8.00
+        },
+        { 
+          id: 1004,
+          title: "International Relations",
+          price: 6.00
+        },
+        {
+          id: 1005,
+          title: "Commerce",
+          price: 5.50
+        },
+        {
+          id: 1006,
+          title: "Medicine",
+          price: 12.00
+        },
+        {
+          id: 1007,
+          title: "Engineering",
+          price: 15.00
+        },
+        {
+          id: 1008,
+          title: "Law",
+          price: 9.00
+        },
+        {
+          id: 1009,
+          title: "Dark Magic",
+          price: 25.00
+        }
+      ]
+    },
+    computed: {
+      subtotal() {
+        return this.cartItems.reduce((sum, item) => sum + item.price, 0);
+      },
+      shippingCost() {
+        return this.subtotal > 50 ? 0 : 5.99;
+      },
+      taxAmount() {
+        return this.subtotal * 0.08;
+      },
+      grandTotal() {
+        return this.subtotal + this.shippingCost + this.taxAmount;
+      }
+    },
+    methods: {
+      getProductTitle(productId) {
+        const product = this.products.find(p => p.id === productId);
+        return product ? product.title : 'Unknown Product';
+      },
+      validateForm() {
+        this.errors = {};
+        
+        if (!this.checkoutData.email) this.errors.email = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(this.checkoutData.email)) this.errors.email = 'Email is invalid';
+        
+        if (!this.checkoutData.firstName) this.errors.firstName = 'First name is required';
+        if (!this.checkoutData.lastName) this.errors.lastName = 'Last name is required';
+        if (!this.checkoutData.address) this.errors.address = 'Address is required';
+        if (!this.checkoutData.city) this.errors.city = 'City is required';
+        if (!this.checkoutData.zipCode) this.errors.zipCode = 'ZIP code is required';
+        if (!this.checkoutData.country) this.errors.country = 'Country is required';
+        if (!this.checkoutData.cardNumber) this.errors.cardNumber = 'Card number is required';
+        if (!this.checkoutData.expiryDate) this.errors.expiryDate = 'Expiry date is required';
+        if (!this.checkoutData.cvv) this.errors.cvv = 'CVV is required';
+        if (!this.checkoutData.cardName) this.errors.cardName = 'Card name is required';
+
+        return Object.keys(this.errors).length === 0;
+      },
+      processOrder() {
+        if (!this.validateForm()) return;
+        
+        this.isProcessing = true;
+        
+        setTimeout(() => {
+          this.isProcessing = false;
+          alert('Order placed successfully! Thank you for your purchase.');
+          localStorage.removeItem('bookstoreCart');
+          this.cartItems = [];
+          this.resetForm();
+        }, 2000);
+      },
+      resetForm() {
+        this.checkoutData = {
+          email: '',
+          firstName: '',
+          lastName: '',
+          address: '',
+          city: '',
+          zipCode: '',
+          country: '',
+          cardNumber: '',
+          expiryDate: '',
+          cvv: '',
+          cardName: ''
+        };
+      },
+      loadCartData() {
+        const savedCart = localStorage.getItem('bookstoreCart');
+        if (savedCart) {
+          this.cartItems = JSON.parse(savedCart);
+          console.log('Loaded cart:', this.cartItems);
+        }
+      }
+    },
+    mounted() {
+      this.loadCartData();
+    }
+  });
+</script>
+</body>
+</html>

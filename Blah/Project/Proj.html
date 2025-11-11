@@ -169,123 +169,127 @@
     </main>
   </div>
 
-  <script>
-    let webstore = new Vue({
-      el: "#app",
-      data: {
-        sitename: "Bookstore",
-        searchQuery:"",
-        products: [
-          { 
-            id: 1001,
-            title: "Mathematics",
-            description: "A full course work of Advanced Mathematics.",
-            price: 20.00,
-            image: "images/maths1.jpg",
-            availableInventory: 5
-          },
-          { 
-            id: 1002,
-            title: "English",
-            description: "Advanced Level English.",
-            price: 10.00,
-            image: "images/english2.jpg",
-            availableInventory: 5
-          },
-          {
-            id: 1003,
-            title: "Computer Science",
-            description: "Intro to Computer Science.",
-            price: 8.00,
-            image: "images/computer.jpg",
-            availableInventory: 5
-          },
-          { 
-            id: 1004,
-            title: "International Relations",
-            description: "A full study guide on the intro to International Relations.",
-            price: 6.00,
-            image: "images/inter-rel.jpg",
-            availableInventory: 5
-          },
-          {
-            id: 1005,
-            title: "Commerce",
-            description: "A full study guide to your future of Commerce.",
-            price: 5.50,
-            image: "images/commerce.jpg",
-            availableInventory: 12
-          },
-          {
-            id: 1006,
-            title: "Medicine",
-            description: "Beginner to Advanced level courses.",
-            price: 12.00,
-            image: "images/medicine.jpg",
-            availableInventory: 5
-          },
-          {
-            id: 1007,
-            title: "Engineering",
-            description: "Advanced Engineering courses.",
-            price: 15.00,
-            image: "images/engineering.jpg",
-            availableInventory: 5
-          },
-          {
-            id: 1008,
-            title: "Law",
-            description: "Brand Law.",
-            price: 9.00,
-            image: "images/law.jpg",
-            availableInventory: 5
-          },
-          {
-            id: 1009,
-            title: "Dark Magic",
-            description: "Shadow Wizard Money Gang.",
-            price: 25.00,
-            image: "images/magic.jpg",
-            availableInventory: 5
-          },
-        ],
-        cart: []
-      },
-       methods: {
-        addItemToTheCart: function(product){        
-    if (this.canAddToTheCart(product)) {
-      this.cart.push({
-        id: product.id,
-        price: product.price
-      });
-      product.availableInventory--;
-    }
-  },
-        canAddToTheCart: function(product) {
-          return product.availableInventory > 0;        
+<script>
+  let webstore = new Vue({
+    el: "#app",
+    data: {
+      sitename: "Bookstore",
+      searchQuery:"",
+      products: [
+        { 
+          id: 1001,
+          title: "Mathematics",
+          description: "A full course work of Advanced Mathematics.",
+          price: 20.00,
+          image: "images/maths1.jpg",
+          availableInventory: 5
         },
-        showCheckout: function(){
-          window.location.href = "checkout.html";
+        { 
+          id: 1002,
+          title: "English",
+          description: "Advanced Level English.",
+          price: 10.00,
+          image: "images/english2.jpg",
+          availableInventory: 5
+        },
+        {
+          id: 1003,
+          title: "Computer Science",
+          description: "Intro to Computer Science.",
+          price: 8.00,
+          image: "images/computer.jpg",
+          availableInventory: 5
+        },
+        { 
+          id: 1004,
+          title: "International Relations",
+          description: "A full study guide on the intro to International Relations.",
+          price: 6.00,
+          image: "images/inter-rel.jpg",
+          availableInventory: 5
+        },
+        {
+          id: 1005,
+          title: "Commerce",
+          description: "A full study guide to your future of Commerce.",
+          price: 5.50,
+          image: "images/commerce.jpg",
+          availableInventory: 12
+        },
+        {
+          id: 1006,
+          title: "Medicine",
+          description: "Beginner to Advanced level courses.",
+          price: 12.00,
+          image: "images/medicine.jpg",
+          availableInventory: 5
+        },
+        {
+          id: 1007,
+          title: "Engineering",
+          description: "Advanced Engineering courses.",
+          price: 15.00,
+          image: "images/engineering.jpg",
+          availableInventory: 5
+        },
+        {
+          id: 1008,
+          title: "Law",
+          description: "Brand Law.",
+          price: 9.00,
+          image: "images/law.jpg",
+          availableInventory: 5
+        },
+        {
+          id: 1009,
+          title: "Dark Magic",
+          description: "Shadow Wizard Money Gang.",
+          price: 25.00,
+          image: "images/magic.jpg",
+          availableInventory: 5
+        },
+      ],
+      cart: []
+    },
+    methods: {
+      addItemToTheCart: function(product){        
+        if (this.canAddToTheCart(product)) {
+          this.cart.push({
+            id: product.id,
+            price: product.price
+          });
+          product.availableInventory--;
+          this.saveCartToStorage();
         }
       },
-      computed: {
-        itemsInTheCart: function() {
-            return this.cart.length || "";
-        },
-        filteredProducts: function() {
-      if (!this.searchQuery) {
-        return this.products;
+      canAddToTheCart: function(product) {
+        return product.availableInventory > 0;        
+      },
+      showCheckout: function(){
+        window.location.href = "checkout.html";
+      },
+      saveCartToStorage: function() {
+        localStorage.setItem('bookstoreCart', JSON.stringify(this.cart));
       }
-      const query = this.searchQuery.toLowerCase();
-      return this.products.filter(product => 
-        product.title.toLowerCase().includes(query)
-      );
     },
-    cartTotal: function() {
-      return this.cart.reduce((total, item) => total + item.price, 0);
-    }
+    computed: {
+      itemsInTheCart: function() {
+        return this.cart.length || "";
+      },
+      filteredProducts: function() {
+        if (!this.searchQuery) {
+          return this.products;
+        }
+        const query = this.searchQuery.toLowerCase();
+        return this.products.filter(product => 
+          product.title.toLowerCase().includes(query)
+        );
+      },
+      cartTotal: function() {
+        return this.cart.reduce((total, item) => total + item.price, 0);
       }
-    })
-  </script>
+    }
+  })
+</script>
 </body>
 </html>
